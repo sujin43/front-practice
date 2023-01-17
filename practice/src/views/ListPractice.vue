@@ -1,7 +1,7 @@
 <template>
   <div>
     <ul class="menu">
-      <li v-for="(item, idx) in menus" :key="idx">
+      <li v-for="(item, idx) in menus" :key="idx" @contextmenu.prevent="menuContext($event, item.id)">
         <div class="item">
           <input :id="item.id" type="text" v-model="item.text" />
           <input type="hidden" v-model="item.value" />
@@ -10,10 +10,10 @@
       </li>
     </ul>
     
-    <div class="context-menu" v-clickoutside="closeContext">
+    <div class="context-menu" v-clickoutside="closeContext" v-show="showMenu">
       <ul>
-        <li><button type="button">Rename menu</button></li> 
-        <li><button type="button">Delete menu</button></li> 
+        <li><button id="1" type="button" @click="clickMenu($event.target)">Rename menu</button></li> 
+        <li><button id="2" type="button" @click="clickMenu($event.target)">Delete menu</button></li> 
       </ul>
     </div>
     <p class="note">
@@ -55,6 +55,7 @@ export default {
   
   data() {
     return {
+      showMenu: false,
       menus: [
         {id: 'menuItem1', value: 'menu1', text: 'Menu 1', selected: false},
         {id: 'menuItem2', value: 'menu2', text: 'Menu 2', selected: false},
@@ -72,12 +73,28 @@ export default {
     focusInput(id){
       document.getElementById(id).focus()
     },
-    menuContext(e, id){
-      console.log(e)
-      console.log(id)
-      e.preventDefault();
+    menuContext(e, id){ //Context Menu 열기...
+      const menu = document.querySelector('.context-menu')
+
+      // e.preventDefault()
+      menu.style.left = e.clientX + 'px'
+      menu.style.top = e.clientY + 'px'
+      this.showMenu = true
+
+      this.menus.find(menu => menu.id === id).selected = true
     },
-    closeContext(){
+    clickMenu(target) {
+      const item = this.menus.find(menu => menu.selected)
+      if(target.id === '1') {
+        this.focusInput(item.id)
+      } else {
+        this.menus = this.menus.filter(menu => menu.id !== item.id)
+      }
+      this.closeContext()
+    },
+    closeContext(){ //Context Menu 닫기
+      this.showMenu = false
+      this.menus.map(menu => menu.selected ? menu.selected = false : null)
       console.log('click outside context menu')
     },
   }
