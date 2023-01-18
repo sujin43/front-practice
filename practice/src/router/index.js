@@ -1,14 +1,19 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import ContextMenu from '../views/ContextMenu.vue'
+import PublicApi from '../views/PublicApi.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
+    name: 'api',
+    component: PublicApi
+  },
+  {
+    path: '/menu',
     name: 'menu',
-    component: ContextMenu
+    component: () => import('../views/ContextMenu.vue')
   },
   {
     path: '/home',
