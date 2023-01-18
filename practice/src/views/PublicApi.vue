@@ -5,9 +5,9 @@
     <div class="content">
       <div class="top">
         <select>
-          <option>서울</option>
+          <option v-for="(region, idx) in regions" :key="idx">{{ region }}</option>
         </select>
-        <span>조회 기준시각 : 2023-01-17 15:00</span>
+        <span>조회 기준시각 : {{getDate}}</span>
       </div>
       <div class="print">
         <div class="data" style="background-color:#00B548"><!-- 좋음 009FF9, 보통  19B500, 나쁨 E0AF00, 매우나쁨 E05100 -->
@@ -38,10 +38,37 @@ export default {
   data() {
     return {
       fromApi: null,
+      regions: ['서울', '부산', '대구', '인천', '광주', '대전', '울산', '경기', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주', '세종'],
+      region: '서울'
     };
   },
+  computed: {
+    getDate() {
+      const date = new Date()
+      return `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`
+    }
+  },
+  mounted() {
+    this.getData()
+  },
   methods: {
-    
+    async getData() {
+      const url = `https://api.odcloud.kr/api/RltmArpltnInforInqireSvrc/v1/getCtprvnRltmMesureDnsty?sidoName=${this.region}&serviceKey=%2B5%2BP5HKeQdGMu1R2PTwyKGVp6uVODEzC%2BSEr1r6aK%2Brzi04qlDnJAI%2BHAcPqROzCjTpWNpDHSIyuqrLHkrlUQw%3D%3D&returnType=json`
+      await fetch(url)
+        .then((response) => {
+          if (response.ok) {
+            return response.json()
+          } else {
+            throw new Error('Network response was not ok')
+          }
+        })
+        .then((json) => {
+          console.log(json)
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+    }
   }
 };
 </script>
