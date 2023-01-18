@@ -1,7 +1,7 @@
 <template>
   <div>
     <ul class="menu">
-      <li v-for="(item, idx) in menus" :key="idx" @contextmenu.prevent="menuContext($event, item.id)">
+      <li v-for="(item, idx) in menus" :key="idx" @contextmenu.prevent="menuContext($event, idx)">
         <div class="item">
           <input :id="item.id" type="text" v-model="item.text" />
           <input type="hidden" v-model="item.value" />
@@ -12,8 +12,8 @@
     
     <div class="context-menu" v-clickoutside="closeContext" v-show="showMenu">
       <ul>
-        <li><button id="1" type="button" @click="clickMenu($event.target)">Rename menu</button></li> 
-        <li><button id="2" type="button" @click="clickMenu($event.target)">Delete menu</button></li> 
+        <li><button id="rename" type="button" @click="clickMenu">Rename menu</button></li> 
+        <li><button id="delete" type="button" @click="clickMenu">Delete menu</button></li> 
       </ul>
     </div>
     <p class="note">
@@ -63,7 +63,8 @@ export default {
         {id: 'menuItem4', value: 'menu4', text: 'Menu 4', selected: false},
         {id: 'menuItem5', value: 'menu5', text: 'Menu 5', selected: false},
         {id: 'menuItem6', value: 'menu6', text: 'Menu 6', selected: false},
-      ]
+      ],
+      selectedMenuId: '' //클릭된 메뉴 id
     };
   },
   mounted() {
@@ -73,29 +74,26 @@ export default {
     focusInput(id){
       document.getElementById(id).focus()
     },
-    menuContext(e, id){ //Context Menu 열기...
+    menuContext(e, idx){
+      // context menu 위치지정
       const menu = document.querySelector('.context-menu')
-
-      // e.preventDefault()
       menu.style.left = e.clientX + 'px'
       menu.style.top = e.clientY + 'px'
       this.showMenu = true
 
-      this.menus.find(menu => menu.id === id).selected = true
+      this.selectedMenuId = this.menus[idx].id
     },
-    clickMenu(target) {
-      const item = this.menus.find(menu => menu.selected)
-      if(target.id === '1') {
-        this.focusInput(item.id)
+    clickMenu(e) {
+      if(e.target.id === 'rename') {
+        this.focusInput(this.selectedMenuId)
       } else {
-        this.menus = this.menus.filter(menu => menu.id !== item.id)
+        this.menus = this.menus.filter(menu => menu.id !== this.selectedMenuId)
       }
+
       this.closeContext()
     },
-    closeContext(){ //Context Menu 닫기
+    closeContext(){
       this.showMenu = false
-      this.menus.map(menu => menu.selected ? menu.selected = false : null)
-      console.log('click outside context menu')
     },
   }
 };

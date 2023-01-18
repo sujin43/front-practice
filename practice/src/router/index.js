@@ -1,14 +1,14 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import ListPractice from '../views/ListPractice.vue'
+import ContextMenu from '../views/ContextMenu.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    name: 'list',
-    component: ListPractice
+    name: 'menu',
+    component: ContextMenu
   },
   {
     path: '/home',
