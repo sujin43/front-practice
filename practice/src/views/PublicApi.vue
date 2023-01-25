@@ -3,7 +3,7 @@
     <h1>전국 미세먼지 현황</h1>
     <div class="content">
       <div class="top">
-        <select v-model="region" @change="getData">
+        <select v-model="region" @change="setReloadTimer">
           <option v-for="(region, idx) in regions" :key="idx">
             {{ region }}
           </option>
@@ -48,18 +48,32 @@ export default {
       regions: ["서울", "부산", "대구", "인천", "광주", "대전", "울산", "경기", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주", "세종"],
       region: "서울",
       khaiGrade: { 1: {bg: '#009FF9', text: '좋음'}, 2: {bg: '#19B500', text: '보통'}, 3: {bg: '#E0AF00', text: '나쁨'},4: {bg: '#E05100', text: '매우나쁨'} },
-      reloadFunction: null,
+      reload: {
+        time: 300000,
+        timer: null,
+      }
     };
   },
   mounted() {
-    this.getData()
-    this.reloadFunction = setInterval(() => { this.getData(); this.getDate(); }, 300000) //5분에 한 번씩 실행
+    this.setReloadTimer()
   },
   methods: {
+    setReloadTimer() {
+      this.getData().then(() => {
+        if (this.reload.timer) {
+          clearInterval(this.reload.timer)
+        }
+
+        this.reload.timer = setInterval(() => this.getData(), this.reload.time)
+      })    
+    },
     getDate() {
       const date = new Date()
-      return `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`
+      return `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
     },
+    reloadData() {
+      this.reload.timer = setInterval(() => { this.getData(); }, this.reload.time) //5분에 한 번씩 실행
+    }, 
     async getData() {
       const url = `https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty?serviceKey=Ng4%2FISrjJiufoRAu%2F2EunlitOLvIycPxZ4USF9cGsZOd9d8p6R5kzLKawHagQ00MDSUxFmDjdNozDdbYt6YSMA%3D%3D&returnType=json&numOfRows=10&pageNo=1&sidoName=${this.region}&ver=1.0`;
       await fetch(url)
@@ -76,6 +90,7 @@ export default {
             (val) => ((val.khaiGrade !== null) && (val.pm10Value !== "-"))
           );
           this.getDate();
+          console.log('test')
         })
         .catch((error) => {
           console.log(error);
