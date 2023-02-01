@@ -1,18 +1,28 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import PublicApi from '../views/PublicApi.vue'
+import Main from '../views/MainPage.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    name: 'api',
-    component: PublicApi
+    name: 'index',
+    component: Main
+  },
+  {
+    path: '/array',
+    name: 'practice-array',
+    component: () => import('../views/ArrayMethod.vue')
+  },
+  {
+    path: '/api',
+    name: 'practice-api',
+    component: () => import('../views/PublicApi.vue')
   },
   {
     path: '/menu',
-    name: 'menu',
+    name: 'practice-menu',
     component: () => import('../views/ContextMenu.vue')
   },
   {
