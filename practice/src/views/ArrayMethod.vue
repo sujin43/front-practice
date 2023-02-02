@@ -3,31 +3,31 @@
   <div id="app">
     <div class="wrap-list">
       <div class="column">
-        <div class="set" v-for="(data, idx) in dataSet[0]" :key="data.id" @click="selected = data.id" :class="{'selected': data.id === selected}">
+        <div class="set" v-for="(data, idx) in dataSetDump[0]" :key="data.id" @click="setSelected(data.id, 'left')" :class="{'selected': data.id === selected}">
           <span class="name">{{data.name}}</span>
           <div class="buttons">
-            <button type="button" value="left" class="button up" @click.stop="listUp(idx, 'left')"><span>앞으로</span></button>
-            <button type="button" value="left" class="button down" @click.stop="listDown(idx, 'left')"><span>뒤로</span></button>
+            <button type="button" class="button up" @click.stop="moveListUpDown(idx, 'left', 'up')" :disabled="idx === 0"><span>앞으로</span></button>
+            <button type="button" class="button down" @click.stop="moveListUpDown(idx, 'left', 'down')" :disabled="idx === dataSetDump[0].length - 1"><span>뒤로</span></button>
           </div>
         </div>
       </div>
       <div class="column control">
-        <button type="button" :class="{'button right': true, 'disabled': !selected || selected.substr(3,1) === '1'}"><span>왼쪽 컬럼으로 이동</span></button>
-        <button type="button" :class="{'button right': true, 'disabled': !selected || selected.substr(3,1) === '2'}"><span>오른쪽 컬럼으로 이동</span></button>
+        <button type="button" :class="{'button left': true, 'disabled': disabledLeft}" :disabled="disabledLeft" @click="moveListSide"><span>왼쪽 컬럼으로 이동</span></button>
+        <button type="button" :class="{'button right': true, 'disabled': disabledRight}" :disabled="disabledRight" @click="moveListSide"><span>오른쪽 컬럼으로 이동</span></button>
       </div>
       <div class="column">
-        <div class="set" v-for="(data, idx) in dataSet[1]" :key="data.id" @click="selected = data.id" :class="{'selected': data.id === selected}">
+        <div class="set" v-for="(data, idx) in dataSetDump[1]" :key="data.id" @click="setSelected(data.id, 'right')" :class="{'selected': data.id === selected}">
           <span class="name">{{data.name}}</span>
           <div class="buttons">
-            <button type="button" value="right" class="button up" @click.stop="listUp(idx, 'right')"><span>앞으로</span></button>
-            <button type="button" value="right" class="button down" @click.stop="listDown(idx, 'right')"><span>뒤로</span></button>
+            <button type="button" class="button up" @click.stop="moveListUpDown(idx, 'right', 'up')" :disabled="idx === 0"><span>앞으로</span></button>
+            <button type="button" class="button down" @click.stop="moveListUpDown(idx, 'right', 'down')" :disabled="idx === dataSetDump[1].length - 1"><span>뒤로</span></button>
           </div>
         </div>
       </div>
     </div>
     <div class="submit">
-      <button type="button" class="button reset"><span>Reset</span></button>
-      <button type="button" class="button"><span>Save</span></button>
+      <button type="button" :class="{'button reset': true, 'disabled': resetDisabled}" :disabled="resetDisabled" @click="reset"><span>Reset</span></button>
+      <button type="button" class="button" @click="save"><span>Save</span></button>
     </div>
     <ul class="note">
       <li>dataSet의 두 배열을 각각 좌우 컬럼(.coiumn)에 div.set을 루프 시키면서 뿌립니다.</li>
@@ -72,29 +72,60 @@ export default {
         {id: 'seq2000007', name: 'Right data 7'},
         {id: 'seq2000008', name: 'Right data 8'},
       ]],
-      selected: ""
+      selected: "",
+      selectedPos: "",
+      resetDisabled: true
     };
   },
+  watch: {
+    dataSetDump: {
+        deep: true,
+        handler(newValue) {
+            JSON.stringify(newValue) === JSON.stringify(this.dataSet) 
+            ? this.resetDisabled = true
+            : this.resetDisabled = false
+        }            
+    }
+  },
+  computed: {
+    disabledLeft() {
+        return !this.selected || this.selectedPos === "left" //왼쪽 이동 버튼 비활성화 조건 체크
+    },
+    disabledRight() {
+        return !this.selected ||this.selectedPos === "right" //오른쪽 이동 버튼 비활성화 조건 체크
+    }
+  },
   mounted() {
-    this.dataSetDump = [...this.dataSet]
+    this.dataSetDump = this.dataSet.map(data => [...data])
   },
   methods: {
-    clickList(e) {
-console.log(e.target)
+    setSelected(id, pos) {
+        this.selected = id
+        this.selectedPos = pos
     },
-    listUp(idx, pos) {
-        console.log(idx, pos)
-        this.selected = ""
-        const num = pos === 'left' ? 0 : 1
-        const item = this.dataSetDump[num].splice(idx, 1) //선택된 아이템
-        this.dataSetDump[num].splice(idx-1, 0, item[0]) //리스트 위치 이동
+    moveListUpDown(idx, pos, movePos) {
+        const arrayIdx = pos === 'left' ? 0 : 1
+        const item = this.dataSetDump[arrayIdx].splice(idx, 1) //선택된 아이템
+        movePos === 'up' //리스트 위치 이동
+        ? this.dataSetDump[arrayIdx].splice(idx-1, 0, item[0])
+        : this.dataSetDump[arrayIdx].splice(idx+1, 0, item[0])
+        this.selected = "" //selected 초기화
     },
-    listDown(idx, pos) {
-        console.log(idx, pos)
-        this.selected = ""
-        const num = pos === 'left' ? 0 : 1
-        const item = this.dataSetDump[num].splice(idx, 1) //선택된 아이템
-        this.dataSetDump[num].splice(idx+1, 0, item[0]) //리스트 위치 이동
+    moveListSide() {
+        let arrayIdx, otherIdx = "";
+        this.selectedPos === 'left' ? (arrayIdx = 0, otherIdx = 1) : (arrayIdx = 1, otherIdx = 0)
+
+        const item = this.dataSetDump[arrayIdx].find(data => data.id === this.selected) //선택된 아이템
+        const itemIdx = this.dataSetDump[arrayIdx].indexOf(item)
+        this.$delete(this.dataSetDump[arrayIdx], itemIdx)
+        this.$set(this.dataSetDump[otherIdx], this.dataSetDump[otherIdx].length, item)
+        this.selected = "" //selected 초기화
+    },
+    reset() {
+        this.dataSetDump = this.dataSet.map(data => [...data])
+    },
+    save() {
+        console.log(this.dataSetDump)
     }
   }
 };
