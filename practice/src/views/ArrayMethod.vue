@@ -100,8 +100,9 @@ export default {
   },
   methods: {
     setSelected(id, pos) {
-        this.selected = id
-        this.selectedPos = pos
+        this.selected === id ? this.selected = "" : 
+        (this.selected = id,
+        this.selectedPos = pos)
     },
     moveListUpDown(idx, pos, movePos) {
         const arrayIdx = pos === 'left' ? 0 : 1
