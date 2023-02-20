@@ -1,30 +1,28 @@
 <template>
-  <v-container>
-    <v-row justify="center">
-      <v-col cols="auto" class="pa-0">
-        <v-btn-toggle
-          class="board"
-          v-model="clickedButton"
-          group
-          @change="countRecommend"
-        >
-          <div>
-            <v-btn class="recommend" icon absolute depressed value="recommend">
-              <v-icon>mdi-thumb-up</v-icon>
-            </v-btn>
-            <span>{{ vote.recommend }}</span>
-          </div>
+  <v-row justify="center">
+    <v-col cols="auto">
+      <v-btn-toggle
+      class="recommend"
+      v-model="clickedButton"
+      group
+      @change="countRecommend"
+      >
+        <div>
+          <v-btn class="recommend" icon depressed value="recommend">
+            <v-icon>mdi-thumb-up</v-icon>
+          </v-btn>
+          <span>{{ vote.recommend }}</span>
+        </div>
 
-          <div>
-            <v-btn class="nonRecommend ml-2" icon depressed value="nonRecommend">
-              <v-icon>mdi-thumb-down</v-icon>
-            </v-btn>
-            <span>{{ vote.nonRecommend }}</span>
-          </div>
-        </v-btn-toggle>
-      </v-col>
-    </v-row>
-  </v-container>
+        <div>
+          <v-btn class="nonRecommend ml-2" icon depressed value="nonRecommend">
+            <v-icon>mdi-thumb-down</v-icon>
+          </v-btn>
+          <span>{{ vote.nonRecommend }}</span>
+        </div>
+      </v-btn-toggle>
+    </v-col>
+  </v-row>
 </template>
 
 <script>
@@ -56,35 +54,35 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$recommend-default-bg: #eee;
-$recommend-default: #ccc;
-$nonRecommend-default-bg: #bfc3cf;
-$nonRecommend-default: #fff;
-$btn-active: #285ef1;
-
 .v-btn-toggle {
-  &.board {
+  &.recommend {
     .v-btn {
       width: 48px !important;
       height: 48px !important;
       border-radius: 50% !important;
       &.v-btn--active {
-        background-color: $btn-active !important;
+        background-color: #285ef1 !important;
         .v-icon {
           color: white;
         }
       }
+      + span {
+        margin-left: 8px;
+      }
+      +.v-btn {
+        margin-left: 10px;
+      }
     }
     .recommend {
-      background-color: $recommend-default-bg !important;
+      background-color: #eee !important;
       .v-icon {
-        color: $recommend-default;
+        color: #ccc;
       }
     }
     .nonRecommend {
-      background-color: $nonRecommend-default-bg !important;
+      background-color: #bfc3cf !important;
       .v-icon {
-        color: $nonRecommend-default;
+        color: #fff
       }
     }
   }
