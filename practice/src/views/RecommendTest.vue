@@ -1,7 +1,7 @@
 <template>
-    <div>
-      <h2>[추천/비추천 버튼]</h2>
-      <RecommentButton :vote="vote"/>
+    <div class="pa-8">
+      <h2 class="mb-4">[추천/비추천 버튼]</h2>
+      <RecommentButton :item="vote" @countRecommend="countRecommend"/>
     </div>
 </template>
 
@@ -16,8 +16,17 @@ export default {
             vote: {
                 recommend: 4,
                 nonRecommend: 2,
-                state: 0, //0: x, 1: recommend, 2: nonRecommend
+                state: null, //null: x, 1: recommend, 2: nonRecommend
             },
+        }
+    },
+    methods: {
+        countRecommend(state) {
+            this.vote = {
+                recommend: state.recommend,
+                nonRecommend: state.nonRecommend,
+                state: state.state === 'recommend' ? 1 : state.state === 'nonRecommend' ? 2 : null
+            }
         }
     }
 }

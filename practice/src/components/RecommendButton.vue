@@ -1,55 +1,73 @@
 <template>
-  <v-row justify="center">
-    <v-col cols="auto">
-      <v-btn-toggle
-      class="recommend"
-      v-model="clickedButton"
-      group
-      @change="countRecommend"
-      >
-        <div>
-          <v-btn class="recommend" icon depressed value="recommend">
-            <v-icon>mdi-thumb-up</v-icon>
-          </v-btn>
-          <span>{{ vote.recommend }}</span>
-        </div>
+  <v-row>
+    <v-btn-toggle
+    class="recommend mt-4"
+    v-model="vote"
+    group
+    @change="countRecommend(vote)"
+    >
+      <div>
+        <v-btn class="recommend" icon depressed value="recommend">
+          <v-icon>mdi-thumb-up</v-icon>
+        </v-btn>
+        <span>{{ voteState.recommend }}</span>
+      </div>
 
-        <div>
-          <v-btn class="nonRecommend ml-2" icon depressed value="nonRecommend">
-            <v-icon>mdi-thumb-down</v-icon>
-          </v-btn>
-          <span>{{ vote.nonRecommend }}</span>
-        </div>
-      </v-btn-toggle>
-    </v-col>
+      <div>
+        <v-btn class="nonRecommend ml-2" icon depressed value="nonRecommend">
+          <v-icon>mdi-thumb-down</v-icon>
+        </v-btn>
+        <span>{{ voteState.nonRecommend }}</span>
+      </div>
+    </v-btn-toggle>
   </v-row>
 </template>
 
 <script>
 export default {
   props: {
-    vote: {
+    item: {
       type: Object
     },
   },
   data() {
     return {
-        clickedButton: "",
+        vote: '',
+        preVote: null,
+        voteState: null
     };
   },
+  created() {
+    this.voteState = {...this.item}
+  },
   mounted() {
-    this.clickedButton =
-      this.vote.state === 0
-        ? ""
-        : this.vote.state === 1
+    this.vote =
+      this.voteState.state === 1
         ? "recommend"
-        : "nonRecommend";
+        : this.voteState.state === 2
+        ? "nonRecommend"
+        : undefined
+  },
+  updated() {
+    this.preVote = this.vote
   },
   methods: {
-    countRecommend() {
-        this.$emit("countRecommend", this.clickedButton);
+    countRecommend(vote) {
+      const other = this.vote === undefined ? '' : this.vote === 'recommend' ? 'nonRecommend' : 'recommend'
+
+      if(vote) {
+        this.voteState.state ?
+        (this.voteState[vote]++, this.voteState[other]--) :
+        this.voteState[vote]++
+      } else {
+        this.voteState[this.preVote]--
+      }
+
+      this.voteState.state = vote
+
+      this.$emit("countRecommend", this.voteState)
     },
-  },
+  } 
 };
 </script>
 
